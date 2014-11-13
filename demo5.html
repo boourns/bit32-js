@@ -1,0 +1,66 @@
+<html>
+  <head>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  </head>
+<body>
+  <canvas id="screen" width=640 height=640></canvas>
+  <script>
+    var step = 0;
+    var pi = 3.14;
+    var lines = [0, 0, 0, 0, 0];
+    var lstep = 0;
+    var centerX = 16;
+    var centerY = 16;
+
+    function render(x, y, t) {
+
+      distance = 16 - Math.sqrt((x-centerX)*(x-centerX) + (y-centerY)*(y-centerY))
+
+      if (x == 0 && y == 0 && (t % 1) == 0) {
+        lstep = lstep + 0.05
+
+        for (i = 0; i < 5; i++) {
+          lines[i] = Math.floor((16.0 * Math.sin((i+1)*lstep/pi)) + 16);
+        }
+
+        centerX = 16+ (Math.sin(lstep*2) * 8);
+        centerY = 16+ (Math.cos(lstep*2) * 8);
+      }
+
+      for (i = 4; i >= 0; i--) {
+        strength = (i * 20) + (distance * 10)
+        if (y == lines[i]) {
+          return [50 + strength, 50 + strength, 50 + strength, 255];
+        } else if (y == lines[i] + 1) {
+          return [strength, strength, strength, 255];
+        }
+      }
+
+      return [0, 0, (32 - y) * 5 + (distance * 10), 255];
+    }
+
+    function drawScreen() {
+      step += 1
+      var c=document.getElementById("screen");
+      var ctx=c.getContext("2d");
+      for (x = 0; x < 32; x++) {
+        for (y = 0; y < 32; y++) {
+          posX = x * 20;
+          posY = y * 20;
+          color = render(x, y, step);
+          color[0] = Math.floor(color[0]);
+          color[1] = Math.floor(color[1]);
+          color[2] = Math.floor(color[2]);
+          color[3] = Math.floor(color[3]);
+          ctx.fillStyle = "rgba(" + color[0] + "," + color[1] + "," + color[2] + "," + color[3] + ")";
+          ctx.fillRect(posX, posY, 20, 20);
+        }
+      }
+    }
+
+    $(function() {
+      setInterval(drawScreen, 33);
+    });
+  </script>
+</body>
+</html>
