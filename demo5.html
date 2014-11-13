@@ -7,36 +7,47 @@
   <script>
     var step = 0;
     var pi = 3.14;
-    var lines = [0, 0, 0, 0, 0];
-    var lstep = 0;
-    var centerX = 16;
-    var centerY = 16;
 
-    function render(x, y, t) {
+    daylight = [
+     [46, 3, 63],
+     [240, 18, 30],
+     [5, 11, 97],
+     [0, 0, 0],
+     [0, 115, 197],
+     ];
 
-      distance = 16 - Math.sqrt((x-centerX)*(x-centerX) + (y-centerY)*(y-centerY))
+     shades = [40, 200, 100, 0, 100]
 
-      if (x == 0 && y == 0 && (t % 1) == 0) {
-        lstep = lstep + 0.05
+     function render(x, y, t) {
+      // very slight half-sin for x
 
-        for (i = 0; i < 5; i++) {
-          lines[i] = Math.floor((16.0 * Math.sin((i+1)*lstep/pi)) + 16);
+      if (y < 20) {
+        adj = Math.sin(x/pi / 4)*4;
+        cycle = (t + y + adj) % 200;
+        base = Math.floor(cycle / 40);
+        next = (base + 1) % 5;
+        perc = (cycle % 40) / 40.0;
+
+        sky = [0,0,0, 255]
+        sky[0] = (daylight[next][0]*perc) + (daylight[base][0]*(1-perc))
+        sky[1] = (daylight[next][1]*perc) + (daylight[base][1]*(1-perc))
+        sky[2] = (daylight[next][2]*perc) + (daylight[base][2]*(1-perc))
+
+        return sky
+      } else {
+      // highway
+        cycle = t + 21 % 200;
+        base = Math.floor(cycle/40);
+        next = (base + 1) % 5;
+        perc = (cycle % 40) / 40.0;
+        value = (shades[next]*perc) + (shades[base]*(1-perc))
+
+        if ((Math.abs(15-x) - ((y-16) / 4) < 7)) {
+          return [value, value, value, 255]
+          } else {
+          return [0, value, 0, 255]
         }
-
-        centerX = 16+ (Math.sin(lstep*2) * 8);
-        centerY = 16+ (Math.cos(lstep*2) * 8);
       }
-
-      for (i = 4; i >= 0; i--) {
-        strength = (i * 20) + (distance * 10)
-        if (y == lines[i]) {
-          return [50 + strength, 50 + strength, 50 + strength, 255];
-        } else if (y == lines[i] + 1) {
-          return [strength, strength, strength, 255];
-        }
-      }
-
-      return [0, 0, (32 - y) * 5 + (distance * 10), 255];
     }
 
     function drawScreen() {

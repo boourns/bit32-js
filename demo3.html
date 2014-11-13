@@ -7,13 +7,19 @@
   <script>
     var step = 0;
     var pi = 3.14;
+    var square = 0;
 
     function render(x, y, t) {
+        square = 1 + ((t >> 2) % 16);
         value = Math.random();
         intensity = (t * 30) % 512
         intensity = 300 - intensity
         value = 20 + (value * intensity);
-        return [value, value, value, 255]
+        scol = 0
+        if (Math.abs(16-x) < square && Math.abs(16-y) < square) {
+          scol = 200;
+        }
+        return [value + scol, value, value, 255]
     }
 
     function drawScreen() {
